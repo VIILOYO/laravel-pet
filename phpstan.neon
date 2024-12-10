@@ -1,0 +1,34 @@
+# Подключение larastan
+includes:
+    - ./vendor/nunomaduro/larastan/extension.neon
+
+parameters:
+    paths:
+        - app/
+        - database/
+        - routes/
+
+    # Отключение сканирование схемы базы данных (увеличение производительности)
+    disableSchemaScan: true
+
+    level: 6
+
+    # Проверка соответствия типов данных в методы и функции
+    checkMissingCallableSignature: true
+    # Проверка кода на соответствие laravel octane
+    checkOctaneCompatibility: true
+    # Позволяет возвращать тип mixed без ошибки
+    checkExplicitMixedMissingReturn: true
+    # Проверяет регистр функций
+    checkFunctionNameCase: true
+    # Проверяет регистр классов
+    checkInternalClassCaseSensitivity: true
+    # Генерирует предупреждения для методов, которые содержат неподтвержденные (maybes) типы
+    reportMaybesInMethodSignatures: true
+    # Проверка типов для статичных методов
+    reportStaticMethodSignatures: true
+
+    exceptions:
+        check:
+            # Проверяет чтобы типы исключений были как можно более специфичны, а не общие
+            tooWideThrowType: true

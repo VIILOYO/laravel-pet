@@ -12,3 +12,13 @@ composer pint
 ```
 ./vendor/bin/pint
 ```
+
+## PHPStan
+Для проверки кода используется команда композера
+```
+composer analyse
+```
+Или по старинке
+```
+./vendor/bin/phpstan analyse
+```
