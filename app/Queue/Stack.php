@@ -21,11 +21,11 @@ class Stack implements StackInterface
     /**
      * @throws Throwable
      */
-    public function pop(): void
+    public function pop(): mixed
     {
         throw_if($this->isEmpty(), UnderflowException::class);
 
-        array_pop($this->stack);
+        return array_pop($this->stack);
     }
 
     /**

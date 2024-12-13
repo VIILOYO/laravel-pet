@@ -21,11 +21,11 @@ class Queue implements QueueInterface
     /**
      * @throws Throwable
      */
-    public function dequeue(): void
+    public function dequeue(): mixed
     {
         throw_if($this->isEmpty(), UnderflowException::class);
 
-        array_shift($this->queue);
+        return array_shift($this->queue);
     }
 
     /**
