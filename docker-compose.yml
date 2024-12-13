@@ -1,0 +1,58 @@
+version: '3.8'
+
+services:
+    nginx:
+        image: nginx
+        container_name: nginx
+        ports:
+            - 80:80
+            - 81:81
+            - 443:443
+        volumes:
+            - ./docker/local/host:/etc/nginx/conf.d
+            - ./:/app
+        networks:
+            - laravel-pet
+        depends_on:
+            - php
+
+    php:
+        build: ./docker/local/php82
+        restart: always
+        container_name: php
+        working_dir: /app
+        volumes:
+            - ./:/app
+        networks:
+            - laravel-pet
+        depends_on:
+            - postgres
+
+    postgres:
+        image: postgres:16
+        container_name: postgres
+        environment:
+            POSTGRES_DB: 'laravel'
+            POSTGRES_USER: 'laravel'
+            POSTGRES_PASSWORD: 'root'
+        volumes:
+            - db_data:/var/lib/postgresql/data
+        ports:
+            - 5432:5432
+        networks:
+            - laravel-pet
+
+    mailhog:
+        image: 'mailhog/mailhog:latest'
+        container_name: mailhog
+        ports:
+            - '${FORWARD_MAILHOG_PORT:-1025}:1025'
+            - '${FORWARD_MAILHOG_DASHBOARD_PORT:-8025}:8025'
+        networks:
+            - laravel-pet
+volumes:
+    db_data:
+
+networks:
+    laravel-pet:
+        driver: bridge
