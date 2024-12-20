@@ -11,8 +11,8 @@ return Application::configure(basePath: dirname(__DIR__))
         commands: __DIR__.'/../routes/console.php',
         health: '/up'
     )
-    ->withMiddleware(new MiddlewareHandler())
-    ->withExceptions(new ExceptionHandler())
-    ->withSchedule(new ScheduleHandler())
+    ->withMiddleware(new MiddlewareHandler)
+    ->withExceptions(new ExceptionHandler)
+    ->withSchedule(new ScheduleHandler)
     ->withCommands([__DIR__.'/../app/Console/Commands'])
     ->create();

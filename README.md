@@ -34,7 +34,7 @@
     cp .env .env.testing
     ```
 ## Работа с проектом
-# Pint
+### Pint
 Для форматирования кода используется команда композера
 ```
 composer pint
@@ -44,7 +44,7 @@ composer pint
 ./vendor/bin/pint
 ```
 
-# PHPStan
+### PHPStan
 Для проверки кода используется команда композера
 ```
 composer analyse
@@ -52,4 +52,8 @@ composer analyse
 Или по старинке
 ```
 ./vendor/bin/phpstan analyse
+```
+### Генерация phpdoc
+```
+php artisan ide-helper:models --write-mixin
 ```

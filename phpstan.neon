@@ -13,6 +13,12 @@ parameters:
 
     level: 6
 
+    ignoreErrors:
+        #ide-helper
+        - '#PHPDoc tag @mixin contains unknown class [a-zA-Z0-9\\_]+IdeHelper#'
+        - identifier: missingType.generics
+
+
     # Проверка соответствия типов данных в методы и функции
     checkMissingCallableSignature: true
     # Проверка кода на соответствие laravel octane

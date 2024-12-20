@@ -6,11 +6,16 @@
     "license": "MIT",
     "require": {
         "php": "^8.2",
+        "giggsey/libphonenumber-for-php": "^8.13",
         "laravel/framework": "^11.31",
+        "laravel/sanctum": "^4.0",
         "laravel/tinker": "^2.9",
-        "sentry/sentry-laravel": "^4.10"
+        "sentry/sentry-laravel": "^4.10",
+        "spatie/laravel-data": "^4.11",
+        "ext-intl": "*"
     },
     "require-dev": {
+        "barryvdh/laravel-ide-helper": "^3.3",
         "fakerphp/faker": "^1.23",
         "larastan/larastan": "^3.0",
         "laravel/pail": "^1.1",

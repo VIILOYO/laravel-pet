@@ -1,0 +1,178 @@
+openapi: 3.0.3
+info:
+  title: API для Управления Гостями
+  description: API для создания, чтения, обновления и удаления информации о гостях.
+  version: 1.0.0
+servers:
+  - url: https://api.example.com/api/v1
+    description: Основной сервер API
+
+paths:
+  /user:
+    get:
+      summary: Получить список всех пользователeй
+      tags:
+        - Пользователь
+      responses:
+        '200':
+          description: Список пользователeй успешно получен
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/UserResource'
+        '500':
+          description: Внутренняя ошибка сервера
+    post:
+      summary: Создать нового пользователя
+      tags:
+        - Пользователь
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserCreateRequest'
+      responses:
+        '201':
+          description: Пользователь успешно создан
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserResource'
+        '422':
+          description: Неверные входные данные
+        '500':
+          description: Внутренняя ошибка сервера
+
+  /user/{id}:
+    parameters:
+      - name: id
+        in: path
+        description: Уникальный идентификатор пользователя
+        required: true
+        schema:
+          type: string
+    get:
+      summary: Получить пользователя по идентификатору
+      tags:
+        - Пользователь
+      responses:
+        '200':
+          description: Пользователь найден
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserResource'
+        '404':
+          description: Гость не найден
+        '500':
+          description: Внутренняя ошибка сервера
+    put:
+      summary: Обновить информацию о пользователе
+      tags:
+        - Пользователь
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserUpdateRequest'
+      responses:
+        '200':
+          description: Пользователь успешно обновлен
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserResource'
+        '400':
+          description: Неверные входные данные
+        '404':
+          description: Пользователь не найден
+        '500':
+          description: Внутренняя ошибка сервера
+    delete:
+      summary: Удалить пользователя
+      tags:
+        - Пользователь
+      responses:
+        '204':
+          description: Пользователь успешно удален
+        '404':
+          description: Пользователь не найден
+        '500':
+          description: Внутренняя ошибка сервера
+
+components:
+  schemas:
+    UserResource:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: Уникальный идентификатор гостя
+        name:
+          type: string
+          description: Имя гостя
+          example: "Иван"
+        surname:
+          type: string
+          description: Фамилия гостя
+          example: "Иванов"
+        email:
+          type: string
+          format: email
+          description: Электронная почта гостя
+          example: "ivan.ivanov@example.com"
+        phone:
+          type: string
+          description: Номер телефона гостя
+          example: "+7-999-123-45-67"
+        country:
+          type: string
+          description: Страна проживания гостя
+          example: "Россия"
+      required:
+        - id
+        - name
+        - surname
+        - phone
+      additionalProperties: false
+
+    UserCreateRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          description: Имя гостя
+          example: "Иван"
+        surname:
+          type: string
+          description: Фамилия гостя
+          example: "Иванов"
+        email:
+          type: string
+          format: email
+          description: Электронная почта гостя
+          example: "ivan.ivanov@example.com"
+        phone:
+          type: string
+          description: Номер телефона гостя
+          example: "+7-999-123-45-67"
+        country:
+          type: string
+          description: Страна проживания гостя
+          example: "ru"
+      required:
+        - name
+        - surname
+        - phone
+      additionalProperties: false
+
+    UserUpdateRequest:
+      $ref: '#/components/schemas/UserCreateRequest'
+
+tags:
+  - name: Пользователь
+    description: Операции по управлению пользователями
