@@ -2,59 +2,81 @@
 
 namespace App\Queue;
 
+use App\Queue\Interfaces\Job;
 use App\Queue\Interfaces\QueueInterface;
+use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
+use stdClass;
 use Throwable;
 use UnderflowException;
 
 class Queue implements QueueInterface
 {
-    /**
-     * @var mixed[]
-     */
-    private array $queue = [];
-
-    public function enqueue($item): void
+    public function enqueue(Job $job): void
     {
-        $this->queue[] = $item;
+        DB::table(config('queue.jobes.table'))->insert([
+            'payload' => (string) json_encode($this->getPayload($job)),
+            'created_at' => Carbon::now()->timestamp,
+        ]);
     }
 
     /**
      * @throws Throwable
      */
-    public function dequeue(): mixed
+    public function dequeue(): stdClass
     {
         throw_if($this->isEmpty(), UnderflowException::class);
 
-        return array_shift($this->queue);
+        $job = $this->head();
+        DB::table(config('queue.jobes.table'))->delete($job->id);
+
+        return $job;
     }
 
     /**
      * @throws Throwable
      */
-    public function head(): mixed
+    public function head(): stdClass
     {
         throw_if($this->isEmpty(), UnderflowException::class);
 
-        return $this->queue[0];
+        return DB::table(config('queue.jobes.table'))->orderBy('id')->first();
     }
 
     /**
      * @throws Throwable
      */
-    public function tail(): mixed
+    public function tail(): stdClass
     {
         throw_if($this->isEmpty(), UnderflowException::class);
 
-        return $this->queue[$this->size() - 1];
+        return DB::table(config('queue.jobes.table'))->orderByDesc('id')->first();
     }
 
     public function isEmpty(): bool
     {
-        return empty($this->queue);
+        return $this->size() === 0;
     }
 
     public function size(): int
     {
-        return count($this->queue);
+        return DB::table(config('queue.jobes.table'))->count();
+    }
+
+    /**
+     * @return array<string, string|string[]>
+     */
+    protected function getPayload(Job $job): array
+    {
+        return [
+            'uuid' => (string) Str::uuid(),
+            'displayName' => $job::class,
+            'job' => 'Illuminate\Queue\CallQueuedHandler@call',
+            'data' => [
+                'commandName' => $job::class,
+                'command' => serialize(clone $job),
+            ],
+        ];
     }
 }

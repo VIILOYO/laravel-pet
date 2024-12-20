@@ -9,9 +9,9 @@ interface QueueInterface
     /**
      * Добавляет элемент в конец очереди.
      *
-     * @param  mixed  $item  Элемент, который нужно добавить.
+     * @param  Job  $job  Элемент, который нужно добавить.
      */
-    public function enqueue($item): void;
+    public function enqueue(Job $job): void;
 
     /**
      * Удаляет элемент из начала очереди и возвращает его.
