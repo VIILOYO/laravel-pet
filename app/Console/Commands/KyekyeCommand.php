@@ -3,11 +3,8 @@
 namespace App\Console\Commands;
 
 use App\Queue\Dispatcher;
-use App\Queue\Interfaces\Job;
 use App\Queue\Queue;
 use Illuminate\Console\Command;
-use Illuminate\Support\Facades\DB;
-use stdClass;
 use Throwable;
 
 class KyekyeCommand extends Command

@@ -6,6 +6,7 @@ use App\Domain\Dto\Misc\PaginationData;
 use App\Domain\Dto\User\UserData;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\User\UserResource;
+use App\Services\Test\Abstract\ITestService;
 use App\Services\User\Abstract\IUserService;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
@@ -15,6 +16,7 @@ class UserController extends Controller
 {
     public function __construct(
         protected IUserService $userService,
+        protected ITestService $testService,
     ) {}
 
     public function list(Request $request): AnonymousResourceCollection
@@ -57,5 +59,10 @@ class UserController extends Controller
         $this->userService->delete($user_id);
 
         return response(status: 204);
+    }
+
+    public function test(): int
+    {
+        return $this->testService->test();
     }
 }

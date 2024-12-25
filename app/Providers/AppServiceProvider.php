@@ -2,6 +2,8 @@
 
 namespace App\Providers;
 
+use App\Services\Test\Abstract\ITestService;
+use App\Services\Test\TestService;
 use App\Services\User\Abstract\IUserService;
 use App\Services\User\UserService;
 use Illuminate\Database\Eloquent\Model;
@@ -14,6 +16,7 @@ class AppServiceProvider extends ServiceProvider
     /** @var array|string[] */
     public array $bindings = [
         IUserService::class => UserService::class,
+        ITestService::class => TestService::class,
     ];
 
     /**
