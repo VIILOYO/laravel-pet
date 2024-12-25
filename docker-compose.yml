@@ -17,7 +17,7 @@ services:
             - php
 
     php:
-        build: ./docker/local/php82
+        build: docker/local/php83
         restart: always
         container_name: php
         working_dir: /app

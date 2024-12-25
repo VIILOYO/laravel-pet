@@ -2,56 +2,62 @@
 
 namespace App\Queue;
 
+use App\Queue\DTO\DbJob;
 use App\Queue\Interfaces\Job;
 use App\Queue\Interfaces\QueueInterface;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
-use stdClass;
 use Throwable;
 use UnderflowException;
 
 class Queue implements QueueInterface
 {
-    public function enqueue(Job $job): void
+    public function enqueue(Job $job, ?int $attempts = 0): void
     {
         DB::table(config('queue.jobes.table'))->insert([
             'payload' => (string) json_encode($this->getPayload($job)),
             'created_at' => Carbon::now()->timestamp,
+            'attempts' => $attempts,
         ]);
     }
 
     /**
      * @throws Throwable
      */
-    public function dequeue(): stdClass
+    public function dequeue(): DbJob
     {
         throw_if($this->isEmpty(), UnderflowException::class);
 
-        $job = $this->head();
-        DB::table(config('queue.jobes.table'))->delete($job->id);
+        $dbJob = $this->head();
 
-        return $job;
+        $this->deleteJob($dbJob->id);
+
+        return $dbJob;
     }
 
     /**
      * @throws Throwable
      */
-    public function head(): stdClass
+    public function head(): DbJob
     {
         throw_if($this->isEmpty(), UnderflowException::class);
 
-        return DB::table(config('queue.jobes.table'))->orderBy('id')->first();
+        return $this->getDbJob(
+            DB::table(config('queue.jobes.table'))->orderBy('id')->first()
+        );
     }
 
     /**
      * @throws Throwable
      */
-    public function tail(): stdClass
+    public function tail(): DbJob
     {
         throw_if($this->isEmpty(), UnderflowException::class);
 
-        return DB::table(config('queue.jobes.table'))->orderByDesc('id')->first();
+        return $this->getDbJob(
+            DB::table(config('queue.jobes.table'))->orderByDesc('id')->first()
+        );
     }
 
     public function isEmpty(): bool
@@ -62,6 +68,34 @@ class Queue implements QueueInterface
     public function size(): int
     {
         return DB::table(config('queue.jobes.table'))->count();
+    }
+
+    public function getDbJob(\stdClass $job): DbJob
+    {
+        return DbJob::from([
+            'job' => unserialize(
+                json_decode($job->payload)->data->command
+            ),
+            'attempts' => $job->attempts,
+            'id' => $job->id,
+        ]);
+    }
+
+    public function deleteJob(int $id): void
+    {
+        DB::table(config('queue.jobes.table'))->delete($id);
+    }
+
+    public function failed(Job $job, Throwable $exception): void
+    {
+        $payload = $this->getPayload($job);
+
+        DB::table(config('queue.jobes.failed_table'))->insert([
+            'uuid' => $payload['uuid'],
+            'queue' => config('queue.jobes.table'),
+            'payload' => json_encode($payload),
+            'exception' => $exception->getMessage(),
+        ]);
     }
 
     /**

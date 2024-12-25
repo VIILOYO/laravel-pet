@@ -3,6 +3,7 @@
 namespace App\Console\Commands;
 
 use App\Queue\Dispatcher;
+use App\Queue\Interfaces\Job;
 use App\Queue\Queue;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
@@ -30,32 +31,20 @@ class KyekyeCommand extends Command
                 continue;
             }
 
-            $queueJob = $queue->dequeue();
-
-            $job = unserialize(json_decode($queueJob->payload)->data->command);
+            $dbJob = $queue->dequeue();
 
             try {
-                $dispatcher->dispatchSync($job);
+                $dispatcher->dispatchSync($dbJob->job);
             } catch (Throwable $e) {
                 sleep(1);
-                $attempts = method_exists($job, 'tries') ?
-                    $job->tries() : config('queue.jobes.attempts');
-                if ($queueJob->attempts > $attempts) {
-                    $this->failed($queueJob, $e);
+                $attempts = method_exists($dbJob->job, 'tries') ?
+                    $dbJob->job->tries() : config('queue.jobes.attempts');
+                if ($dbJob->attempts > $attempts) {
+                    $queue->failed($dbJob->job, $e);
                 } else {
-                    $dispatcher->dispatchToQueue($job, ++$queueJob->attempts);
+                    $dispatcher->dispatchToQueue($dbJob->job, ++$dbJob->attempts);
                 }
             }
         }
-    }
-
-    public function failed(stdClass $job, Throwable $exception): void
-    {
-        DB::table(config('queue.jobes.failed_table'))->insert([
-            'uuid' => json_decode($job->payload)->uuid,
-            'queue' => config('queue.jobes.table'),
-            'payload' => $job->payload,
-            'exception' => $exception->getMessage(),
-        ]);
     }
 }

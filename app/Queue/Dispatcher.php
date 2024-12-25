@@ -26,7 +26,7 @@ class Dispatcher
 
     public function dispatchToQueue(Job $job, ?int $attempts = 0): void
     {
-        $this->queue->enqueue($job);
+        $this->queue->enqueue($job, $attempts);
     }
 
     public function getQueue(): Queue
