@@ -13,6 +13,9 @@ class KyekyeCommand extends Command
 
     protected $description = 'Запуск кастомной очереди';
 
+    /**
+     * @throws Throwable
+     */
     public function handle(): void
     {
         $dispatcher = new Dispatcher(new Queue);
@@ -32,6 +35,7 @@ class KyekyeCommand extends Command
 
             try {
                 $dispatcher->dispatchSync($dbJob->job);
+                $queue->deleteJob($dbJob);
             } catch (Throwable $e) {
                 sleep(1);
                 $attempts = method_exists($dbJob->job, 'tries') ?

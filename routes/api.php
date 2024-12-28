@@ -7,20 +7,20 @@ use App\Services\Test\TestService;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
-    //    $dispatcher = new \App\Queue\Dispatcher(new \App\Queue\Queue);
-    //
-    //    $dispatcher->dispatch(new \App\Queue\TestJobes\TestJob('Имя', 'Фамилия'));
-    //    $dispatcher->dispatch(new \App\Queue\TestJobes\CoolTestJob);
-    //    $dispatcher->dispatch(new \App\Queue\TestJobes\TestJob('Имя', 'Фамилия'));
+    $dispatcher = new \App\Queue\Dispatcher(new \App\Queue\Queue);
 
-    $di = new DependencyContainer;
+    $dispatcher->dispatch(new \App\Queue\TestJobes\TestJob('Имя', 'Фамилия'));
+    $dispatcher->dispatch(new \App\Queue\TestJobes\CoolTestJob);
+    $dispatcher->dispatch(new \App\Queue\TestJobes\TestJob('Имя', 'Фамилия'));
 
-    $di->bind(ITestService::class, fn () => TestService::class);
-
-    dd(
-        $di->get(UserController::class)->show(1),
-        $di->get(UserController::class)->test()
-    );
+//    $di = new DependencyContainer;
+//
+//    $di->bind(ITestService::class, fn () => TestService::class);
+//
+//    dd(
+//        $di->get(UserController::class)->show(1),
+//        $di->get(UserController::class)->test()
+//    );
 });
 
 Route::group(['prefix' => 'user', 'as' => 'user.'], function () {

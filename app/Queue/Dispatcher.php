@@ -3,8 +3,10 @@
 namespace App\Queue;
 
 use App\Queue\Interfaces\Job;
+use App\Queue\Interfaces\ShouldBeUnique;
 use App\Queue\Interfaces\ShouldQueue;
 use Illuminate\Support\Facades\App;
+use Illuminate\Support\Facades\Cache;
 
 class Dispatcher
 {
@@ -12,10 +14,10 @@ class Dispatcher
 
     public function dispatch(Job $job): void
     {
-        if ($job instanceof ShouldQueue) {
-            $this->dispatchToQueue($job);
-        } else {
-            $this->dispatchSync($job);
+        if ($this->checkUnique($job)) {
+            $job instanceof ShouldQueue ?
+                $this->dispatchToQueue($job) :
+                $this->dispatchSync($job);
         }
     }
 
@@ -32,5 +34,20 @@ class Dispatcher
     public function getQueue(): Queue
     {
         return $this->queue;
+    }
+
+    private function checkUnique(Job $job): bool
+    {
+        if ($job instanceof ShouldBeUnique) {
+            $exist = Cache::has(config('queue.jobes.unique-prefix').'-'.get_class($job));
+
+            if (! $exist) {
+                Cache::put(config('queue.jobes.unique-prefix').'-'.get_class($job), '');
+            }
+
+            return true;
+        }
+
+        return false;
     }
 }

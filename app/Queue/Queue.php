@@ -5,7 +5,9 @@ namespace App\Queue;
 use App\Queue\DTO\DbJob;
 use App\Queue\Interfaces\Job;
 use App\Queue\Interfaces\QueueInterface;
+use App\Queue\Interfaces\ShouldBeUnique;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Throwable;
@@ -29,11 +31,7 @@ class Queue implements QueueInterface
     {
         throw_if($this->isEmpty(), UnderflowException::class);
 
-        $dbJob = $this->head();
-
-        $this->deleteJob($dbJob->id);
-
-        return $dbJob;
+        return $this->head();
     }
 
     /**
@@ -81,9 +79,12 @@ class Queue implements QueueInterface
         ]);
     }
 
-    public function deleteJob(int $id): void
+    public function deleteJob(DbJob $dbJob): void
     {
-        DB::table(config('queue.jobes.table'))->delete($id);
+        if ($dbJob->job instanceof ShouldBeUnique) {
+            Cache::delete(config('queue.jobes.unique-prefix').'-'.get_class($dbJob->job));
+        }
+        DB::table(config('queue.jobes.table'))->delete($dbJob->id);
     }
 
     public function failed(Job $job, Throwable $exception): void
