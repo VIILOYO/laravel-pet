@@ -7,6 +7,8 @@ parameters:
         - app/
         - database/
         - routes/
+    excludePaths:
+        - 'app/Helpers/functions.php'
 
     # Отключение сканирование схемы базы данных (увеличение производительности)
     disableSchemaScan: true

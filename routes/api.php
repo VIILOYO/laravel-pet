@@ -13,14 +13,14 @@ Route::get('/', function () {
     $dispatcher->dispatch(new \App\Queue\TestJobes\CoolTestJob);
     $dispatcher->dispatch(new \App\Queue\TestJobes\TestJob('Имя', 'Фамилия'));
 
-//    $di = new DependencyContainer;
-//
-//    $di->bind(ITestService::class, fn () => TestService::class);
-//
-//    dd(
-//        $di->get(UserController::class)->show(1),
-//        $di->get(UserController::class)->test()
-//    );
+    //    $di = new DependencyContainer;
+    //
+    //    $di->bind(ITestService::class, fn () => TestService::class);
+    //
+    //    dd(
+    //        $di->get(UserController::class)->show(1),
+    //        $di->get(UserController::class)->test()
+    //    );
 });
 
 Route::group(['prefix' => 'user', 'as' => 'user.'], function () {
