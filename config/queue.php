@@ -113,5 +113,6 @@ return [
         'table' => env('JOBES_TABLE', 'jobes'),
         'attempts' => env('JOBES_ATTEMPS', 3),
         'failed_table' => env('JOBES_FAILED_TABLE', 'failed_jobes'),
+        'unique_for_default' => env('UNIQUE_FOR_DEFAULT', 3600),
     ],
 ];

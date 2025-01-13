@@ -34,8 +34,9 @@ class KyekyeCommand extends Command
             $dbJob = $queue->dequeue();
 
             try {
-                $dispatcher->dispatchSync($dbJob->job);
                 $queue->deleteJob($dbJob);
+                $dispatcher->dispatchSync($dbJob->job);
+                $dispatcher->forgetUniqueJobCache($dbJob->job);
             } catch (Throwable $e) {
                 sleep(1);
                 $attempts = method_exists($dbJob->job, 'tries') ?
