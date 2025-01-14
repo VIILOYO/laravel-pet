@@ -2,6 +2,7 @@
 
 use App\Domain\Dto\Agg\AggData;
 use App\Domain\Enum\Agg\AggType;
+use App\Domain\Enum\Join\JoinType;
 
 if (! function_exists('groupBy')) {
     /**
@@ -90,5 +91,96 @@ if (! function_exists('agg_function')) {
                 return $item[$arg->name];
             }, $data)),
         };
+    }
+}
+
+if (! function_exists('custom_join')) {
+    function custom_join(array $mainItems, array $joinItems, string $joinType, array $conditions): array
+    {
+        $resultArray = [];
+        $addedJoinItemIndex = [];
+        $addedMainItemIndex = [];
+
+        foreach ($mainItems as $key => $item) {
+            foreach ($joinItems as $joinKey => $joinItem) {
+                if (custom_join_conditions($item, $joinItem, $conditions)) {
+                    $resultArray[] = array_merge($item, rename_exist_key_in_arrays($item, $joinItem));
+                    $addedJoinItemIndex[] = $joinKey;
+                    $addedMainItemIndex[] = $key;
+                }
+            }
+        }
+
+        if ($joinType === JoinType::LEFT_JOIN->value) {
+            foreach ($addedMainItemIndex as $mainIndex) {
+                unset($mainItems[$mainIndex]);
+            }
+
+            foreach ($mainItems as $mainItem) {
+                $resultArray[] = $mainItem;
+            }
+        }
+
+        if ($joinType === JoinType::RIGHT_JOIN->value) {
+            foreach ($addedJoinItemIndex as $joinIndex) {
+                unset($joinItems[$joinIndex]);
+            }
+
+            foreach ($joinItems as $joinItem) {
+                $resultArray[] = $joinItem;
+            }
+        }
+
+
+        return $resultArray;
+    }
+}
+
+if (! function_exists('custom_join_conditions')) {
+    function custom_join_conditions(array $mainItem, array $joinItem, array $conditions): bool
+    {
+        $mainItemValue = $mainItem[$conditions[0]];
+        $joinItemValue = $joinItem[$conditions[2] ?? $conditions[1]];
+        $condition = isset($conditions[2]) ? $conditions[1] : '===';
+
+        if ($condition === '=') {
+            $condition = '===';
+        } elseif ($condition === '<>') {
+            $condition = '!=';
+        }
+
+        return eval("return $mainItemValue $condition $joinItemValue;");
+    }
+}
+
+if (! function_exists('rename_exist_key_in_arrays')) {
+    function rename_exist_key_in_arrays(array $mainItem, array $joinItem): array
+    {
+        $newJoinItem = [];
+        foreach ($joinItem as $key => $value) {
+            if (key_exists($key, $mainItem)) {
+                $newJoinItem['join_'.$key] = $value;
+            } else {
+                $newJoinItem[$key] = $value;
+            }
+        }
+
+        return $newJoinItem;
+    }
+}
+
+if (! function_exists('rename_exist_key_in_arrays')) {
+    function rename_exist_key_in_arrays(array $mainItem, array $joinItem): array
+    {
+        $newJoinItem = [];
+        foreach ($joinItem as $key => $value) {
+            if (key_exists($key, $mainItem)) {
+                $newJoinItem['join_'.$key] = $value;
+            } else {
+                $newJoinItem[$key] = $value;
+            }
+        }
+
+        return $newJoinItem;
     }
 }
